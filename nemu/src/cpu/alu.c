@@ -33,7 +33,7 @@ uint32_t alu_add(uint32_t src, uint32_t dest, size_t data_size)
 	}
 	src &= mask;
 	dest &= mask;
-	uint64_t res_full = src + dest;
+	uint64_t res_full = (uint64_t)src + dest;
 	uint32_t res = res_full & mask;
 	
 	

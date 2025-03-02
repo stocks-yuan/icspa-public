@@ -1,14 +1,48 @@
 #include "cpu/cpu.h"
 
+static bool cal_pf(uint32_t result)
+{
+	result &= 0xff;
+	result ^= result >>4;
+	result ^= result >>2;
+	result ^= result >>1;
+	return (result &0x01) == 0;
+}
+
+static bool cal_zf(uint32_t result)
+{
+	return result == 0;
+}
+
 uint32_t alu_add(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_add(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+       	//printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
+	//fflush(stdout);
+	//assert(0);
+	uint32_t mask = 0;
+	switch(data_size)
+	{
+		case 8:mask = 0xff;break;
+		case 16:mask = 0xffff;break;
+		case 32:mask = 0xffffffff;break;
+		default:break;
+		       
+	}
+	
+	uint64 res_full = src + dest;
+	uint32_t res = res_full && mask;
+	res = res &&(0xffffffff >> (32 - data_size));	
+	
+	cpu.eflags.CF = (res_full > mask);
+	cpu.eflags.OF = ((dest >> (data_size-1)) == (src >> (data_size -1))) && ((res >> (data_size -1)) != (dest >> (data_size -1)));
+      	cpu.eflags.ZF = cal_zf(res);
+	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
+	cpu.eflags.PF = cal_pf(res);	
+	
+	return res;
 #endif
 }
 

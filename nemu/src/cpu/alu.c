@@ -33,8 +33,8 @@ uint32_t alu_add(uint32_t src, uint32_t dest, size_t data_size)
 	}
 	
 	uint64_t res_full = src + dest;
-	uint32_t res = res_full && mask;
-	res = res &&(0xffffffff >> (32 - data_size));	
+	uint32_t res = res_full & mask;
+	res = res &(0xffffffff >> (32 - data_size));	
 	
 	cpu.eflags.CF = (res_full > mask);
 	cpu.eflags.OF = ((dest >> (data_size-1)) == (src >> (data_size -1))) && ((res >> (data_size -1)) != (dest >> (data_size -1)));

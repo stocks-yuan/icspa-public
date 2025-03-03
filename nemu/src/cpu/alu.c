@@ -55,12 +55,25 @@ uint32_t alu_adc(uint32_t src, uint32_t dest, size_t data_size)
 	// printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
 	// fflush(stdout);
 	// assert(0);
-	uint32_t carry = cpu.eflags.CF;
+	uint32_t mask = 0;
+	switch(data_size)
+	{
+		case 8:mask = 0xff;break;
+		case 16:mask = 0xffff;break;
+		case 32:mask = 0xffffffff;break;
+		default:break;
+	}
+	src &= mask;
+	dest &= mask;
+	uint64_t res_full = (uint64_t)src + dest + cpu.eflags.CF;
+	uint32_t res = res_full & mask;
 
-	uint32_t res = alu_add(src, dest, data_size);
-
-	res = alu_add(carry, res, data_size);
-
+	cpu.eflags.CF = (res_full > mask);
+	cpu.eflags.OF = ((dest >> (data_size-1)) == (src >> (data_size -1))) && ((res >> (data_size -1)) != (dest >> (data_size -1)));
+      	cpu.eflags.ZF = cal_zf(res);
+	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
+	cpu.eflags.PF = cal_pf(res);	
+	
 	return res;
 #endif
 }

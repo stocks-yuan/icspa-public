@@ -59,7 +59,7 @@ uint32_t alu_adc(uint32_t src, uint32_t dest, size_t data_size)
 
 	uint32_t res = alu_add(src, dest, data_size);
 
-	res = alu_adc(res, carry, data_size);
+	res = alu_add(carry, res, data_size);
 
 	return res;
 #endif

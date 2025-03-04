@@ -343,7 +343,7 @@ uint32_t alu_shl(uint32_t src, uint32_t dest, size_t data_size)
 	{
 		cpu.eflags.OF = 1;
 	}
-	cpu.eflags.CF = (bool)((res_full & 0x100000000)>>32);	
+	cpu.eflags.CF = (src > 0) ? ((dest >> (data_size - src)) & 0x1) : 0;		
 	cpu.eflags.ZF = cal_zf(res);
 	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
 	cpu.eflags.PF = cal_pf(res);	

@@ -129,19 +129,19 @@ uint32_t alu_sbb(uint32_t src, uint32_t dest, size_t data_size)
 	src &= mask;
 	dest &= mask;
 
-	bool cf = cpu.eflags.CF;
+	uint32_t cf = cpu.eflags.CF;
 	uint32_t res = dest - src - cf;
 	res &= mask;
 
-	cpu.eflags.CF = ((src + cf) > dest);
+	uint64_t extend_src = (uint64_t)src + cf;
+
+	cpu.eflags.CF = (extend_src > dest);
 	cpu.eflags.OF = ((dest >> (data_size-1)) != (src >> (data_size -1))) && ((res >> (data_size -1)) != (dest >> (data_size -1)));
 	cpu.eflags.ZF = cal_zf(res);
 	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
 	cpu.eflags.PF = cal_pf(res);	
 	
 	return res;
-
-	return 0;
 #endif
 }
 

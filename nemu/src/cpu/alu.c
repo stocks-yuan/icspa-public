@@ -320,10 +320,34 @@ uint32_t alu_shl(uint32_t src, uint32_t dest, size_t data_size)
 #ifdef NEMU_REF_ALU
 	return __ref_alu_shl(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	// printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
+	// fflush(stdout);
+	// assert(0);
+	uint32_t mask = 0;
+	switch(data_size)
+	{
+		case 8:mask = 0xff;break;
+		case 16:mask = 0xffff;break;
+		case 32:mask = 0xffffffff;break;
+		default:break;
+	}
+	src &= mask;
+	dest &= mask;	
+	bool orignal_sign = dest >> (data_size - 1);
+
+	uint64_t res_full = (uint64_t)dest << src;
+	uint32_t res = res_full & mask;
+
+	bool new_sign = res >> (data_size - 1);
+	if(src ==1 && orignal_sign != new_sign )
+	{
+		cpu.eflags.OF = 1;
+	}
+	cpu.eflags.CF = (res_full & 0x100000000)>>32;
+	cpu.eflags.ZF = cal_zf(res);
+	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
+	cpu.eflags.PF = cal_pf(res);	
+	return res;
 #endif
 }
 

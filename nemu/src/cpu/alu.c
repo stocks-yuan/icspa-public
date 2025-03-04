@@ -335,15 +335,14 @@ uint32_t alu_shl(uint32_t src, uint32_t dest, size_t data_size)
 	dest &= mask;	
 	bool orignal_sign = dest >> (data_size - 1);
 
-	uint64_t res_full = (uint64_t)dest << src;
-	uint32_t res = res_full & mask;
+	uint32_t res = dest << src;
 
 	bool new_sign = res >> (data_size - 1);
 	if(src ==1 && orignal_sign != new_sign )
 	{
 		cpu.eflags.OF = 1;
 	}
-	cpu.eflags.CF = (src > 0) ? ((dest >> (data_size - src)) & 0x1) : 0;		
+	cpu.eflags.CF = (src > 0) ? ((dest >> (data_size - src)) & 0x1) : 0;
 	cpu.eflags.ZF = cal_zf(res);
 	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
 	cpu.eflags.PF = cal_pf(res);	

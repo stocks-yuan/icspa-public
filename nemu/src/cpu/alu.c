@@ -14,6 +14,7 @@ static bool cal_zf(uint32_t result)
 	return result == 0;
 }
 
+/** Attention: Unsigned number overflow and signed number overflow**/
 uint32_t alu_add(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
@@ -33,7 +34,7 @@ uint32_t alu_add(uint32_t src, uint32_t dest, size_t data_size)
 	}
 	src &= mask;
 	dest &= mask;
-	uint64_t res_full = (uint64_t)src + dest;
+	uint64_t res_full = (uint64_t)src + dest;//src should be uint64_t,or overflow will happen.
 	uint32_t res = res_full & mask;
 	
 	
@@ -351,6 +352,7 @@ uint32_t alu_shl(uint32_t src, uint32_t dest, size_t data_size)
 #endif
 }
 
+/* 逻辑右移：低位丢弃，高位补0 */
 uint32_t alu_shr(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
@@ -381,18 +383,44 @@ uint32_t alu_shr(uint32_t src, uint32_t dest, size_t data_size)
 #endif
 }
 
+/*
+算数右移:​低位丢弃，高位补符号位。
+正数高位补0，与逻辑右移结果相同
+负数高位补1，与逻辑右移结果不同
+*/
 uint32_t alu_sar(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_sar(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	// printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
+	// fflush(stdout);
+	// assert(0);
+	uint32_t mask = 0;
+	switch(data_size)
+	{
+		case 8:mask = 0xff;break;
+		case 16:mask = 0xffff;break;
+		case 32:mask = 0xffffffff;break;
+		default:break;
+	}
+	src &= mask;
+	dest &= mask;	
+
+	int32_t sign_res = (int32_t)(dest << (32 - data_size)) >> (32 - data_size);
+	sign_res = sign_res >> src;
+	uint32_t res = sign_res & mask;
+	
+
+	cpu.eflags.CF = (src > 0) ? ((dest >> (src-1)) & 0x1) : 0;
+	cpu.eflags.ZF = cal_zf(res);
+	cpu.eflags.SF = (res >> (data_size - 1) == 0x01);
+	cpu.eflags.PF = cal_pf(res);	
+	return res;
 #endif
 }
 
+/* 算数左移和逻辑左移效果一样，都是低位补0*/
 uint32_t alu_sal(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU

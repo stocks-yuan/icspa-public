@@ -195,7 +195,7 @@ int64_t alu_imul(int32_t src, int32_t dest, size_t data_size)
 	src &= mask;
 	dest &= mask;	
 
-	int64_t res = (int64_t)src * dest;
+	int64_t res = src * dest;
 
 	return res;
 #endif

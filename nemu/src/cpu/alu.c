@@ -175,15 +175,29 @@ uint64_t alu_mul(uint32_t src, uint32_t dest, size_t data_size)
 #endif
 }
 
+/* 有符号整数乘法 */
 int64_t alu_imul(int32_t src, int32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_imul(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	// printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
+	// fflush(stdout);
+	// assert(0);
+	uint32_t mask = 0;
+	switch(data_size)
+	{
+		case 8:mask = 0xff;break;
+		case 16:mask = 0xffff;break;
+		case 32:mask = 0xffffffff;break;
+		default:break;
+	}
+	src &= mask;
+	dest &= mask;	
+
+	int64_t res = (int64_t)src * dest;
+
+	return res;
 #endif
 }
 

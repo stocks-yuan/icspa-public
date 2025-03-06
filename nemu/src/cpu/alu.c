@@ -158,9 +158,9 @@ uint64_t alu_mul(uint32_t src, uint32_t dest, size_t data_size)
 	uint32_t mask = 0;
 	switch(data_size)
 	{
-		case 8:mask = 0xff;dest = cpu.gpr[0]._8[0];break;
-		case 16:mask = 0xffff;dest = cpu.gpr[0]._16;break;
-		case 32:mask = 0xffffffff;dest = cpu.eax;break;
+		case 8:mask = 0xff;break;
+		case 16:mask = 0xffff;break;
+		case 32:mask = 0xffffffff;break;
 		default:break;
 	}
 	src &= mask;

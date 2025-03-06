@@ -146,15 +146,32 @@ uint32_t alu_sbb(uint32_t src, uint32_t dest, size_t data_size)
 #endif
 }
 
+/* 无符号整数乘法 */
 uint64_t alu_mul(uint32_t src, uint32_t dest, size_t data_size)
 {
 #ifdef NEMU_REF_ALU
 	return __ref_alu_mul(src, dest, data_size);
 #else
-	printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
-	fflush(stdout);
-	assert(0);
-	return 0;
+	// printf("\e[0;31mPlease implement me at alu.c\e[0m\n");
+	// fflush(stdout);
+	// assert(0);
+	uint32_t mask = 0;
+	switch(data_size)
+	{
+		case 8:mask = 0xff;dest = cpu.gpr[0]._8[0];break;
+		case 16:mask = 0xffff;dest = cpu.gpr[0]._16;break;
+		case 32:mask = 0xffffffff;dest = cpu.eax;break;
+		default:break;
+	}
+	src &= mask;
+	dest &= mask;	
+	
+	uint64_t res = (uint64_t)src * dest;
+
+	cpu.eflags.CF = ((res >> data_size) != 0);
+	cpu.eflags.OF = ((res >> data_size) != 0);
+
+	return res;
 #endif
 }
 

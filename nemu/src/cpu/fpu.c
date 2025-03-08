@@ -11,64 +11,46 @@ inline uint32_t internal_normalize(uint32_t sign, int32_t exp, uint64_t sig_grs)
 
 	// normalization
 	bool overflow = false; // true if the result is INFINITY or 0 during normalize
-	uint64_t sticky = 0;
+	uint32_t sticky = 0;
+
 	if ((sig_grs >> (23 + 3)) > 1 || exp < 0)
 	{
 		// normalize toward right
 		while ((((sig_grs >> (23 + 3)) > 1) && exp < 0xff) // condition 1
 			   ||										   // or
 			   (sig_grs > 0x04 && exp < 0)				   // condition 2
-		)
+			   )
 		{
 
 			/* TODO: shift right, pay attention to sticky bit*/
-			// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-			// fflush(stdout);
-			// assert(0);
-			uint64_t shifted_bit = sig_grs & 1;
-			sticky |= shifted_bit;
-			sig_grs >>= 1;
-			exp++;
+			sticky = sticky | (sig_grs & 0x1);
+			sig_grs = sig_grs >> 1;
+			sig_grs |= sticky;
+			exp ++;
 		}
-		if (sticky) {
-			sig_grs |= 0x1;
-		} else {
-			sig_grs &= ~0x1;
-		}
+
 		if (exp >= 0xff)
 		{
 			/* TODO: assign the number to infinity */
-			// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-			// fflush(stdout);
-			// assert(0);
+			exp = 0xff;
+			sig_grs = 0;
 			overflow = true;
-			FLOAT inf;
-			inf.sign = sign;
-			inf.exponent = 0xff;
-			inf.fraction = 0;
-			return inf.val;
-			
 		}
 		if (exp == 0)
 		{
 			// we have a denormal here, the exponent is 0, but means 2^-126,
 			// as a result, the significand should shift right once more
 			/* TODO: shift right, pay attention to sticky bit*/
-			// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-			// fflush(stdout);
-			// assert(0);
-			uint64_t shifted_bit = sig_grs & 1;
-			sig_grs = (sig_grs >> 1) | shifted_bit;			
+			sticky = sticky | (sig_grs & 0x1);
+			sig_grs = sig_grs >> 1;
+			sig_grs |= sticky;
 		}
 		if (exp < 0)
 		{
 			/* TODO: assign the number to zero */
-			// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-			// fflush(stdout);
-			// assert(0);
-
+			exp = 0;
+			sig_grs = 0;
 			overflow = true;
-			return sign ? N_ZERO_F : P_ZERO_F;
 		}
 	}
 	else if (((sig_grs >> (23 + 3)) == 0) && exp > 0)
@@ -77,21 +59,16 @@ inline uint32_t internal_normalize(uint32_t sign, int32_t exp, uint64_t sig_grs)
 		while (((sig_grs >> (23 + 3)) == 0) && exp > 0)
 		{
 			/* TODO: shift left */
-			// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-			// fflush(stdout);
-			// assert(0);
-			sig_grs <<= 1;
-			exp--;			
+			sig_grs = sig_grs << 1;
+			exp --;
 		}
 		if (exp == 0)
 		{
 			// denormal
 			/* TODO: shift right, pay attention to sticky bit*/
-			// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-			// fflush(stdout);
-			// assert(0);
-			uint64_t shifted_bit = sig_grs & 1;
-			sig_grs = (sig_grs >> 1) | shifted_bit;			
+			sticky = sticky | (sig_grs & 0x1);
+			sig_grs = sig_grs >> 1;
+			sig_grs |= sticky;
 		}
 	}
 	else if (exp == 0 && sig_grs >> (23 + 3) == 1)
@@ -103,24 +80,38 @@ inline uint32_t internal_normalize(uint32_t sign, int32_t exp, uint64_t sig_grs)
 	if (!overflow)
 	{
 		/* TODO: round up and remove the GRS bits */
-		// printf("\e[0;31mPlease implement me at fpu.c\e[0m\n");
-		// fflush(stdout);
-		// assert(0);
 		uint32_t grs = sig_grs & 0x7;
-		sig_grs >>= 3;
-		if (grs > 4 || (grs == 4 && (sig_grs & 1))) {
-			sig_grs += 1;
-			if (sig_grs >= (1 << 24)) {
-				sig_grs >>= 1;
-				exp++;
-			}
-		}		
+		sig_grs = sig_grs >> 3;
+		if(grs > 0x4)
+		    sig_grs ++;
+		else if(grs == 0x4 && sig_grs % 2 == 1)
+		    sig_grs ++;
+		
+		// 舍入若产生尾数加1，有可能出现破坏规格化的情况，此时需要进行额外的一次右规并判断阶码上溢的情况
+		// 注意此时右移位数为23不是26
+		if ((sig_grs >> 23) > 1)
+		{
+		    while (((sig_grs >> 23) > 1) && exp < 0xff)
+		    {
+		        sticky = sticky | (sig_grs & 0x1);
+			    sig_grs = sig_grs >> 1;
+			    sig_grs |= sticky;
+			    exp ++;
+		    }
+		    if (exp >= 0xff)
+		    {
+		        exp = 0xff;
+			    sig_grs = 0;
+			    overflow = true;
+		    }
+		}
 	}
 
 	FLOAT f;
 	f.sign = sign;
 	f.exponent = (uint32_t)(exp & 0xff);
-	f.fraction = sig_grs & 0x7fffff; // here only the lowest 23 bits are kept
+	f.fraction = sig_grs; // here only the lowest 23 bits are kept
+// 	printf("f=%8x\n",f.val);
 	return f.val;
 }
 

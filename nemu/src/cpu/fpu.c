@@ -193,7 +193,7 @@ uint32_t internal_float_add(uint32_t b, uint32_t a)
 	// fflush(stdout);
 	// assert(0);
 
-	shift = fb.exponent - fa.exponent;
+	shift = (fb.exponent == 0 ? fb.exponent + 1 : fb.exponent) - (fa.exponent == 0 ? fa.exponent + 1 : fa.exponent);	
        	assert(shift >= 0);
 
 	

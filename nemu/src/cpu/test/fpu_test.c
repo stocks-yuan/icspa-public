@@ -23,7 +23,7 @@ void fpu_test_add()
 			b.fval = input[j];
 			res.fval = a.fval + b.fval;
 			res_fpu.val = internal_float_add(b.val, a.val);
-			//printf("float add a = %f, b = %f, ua = %x, ub = %x, res = %x, res_fpu = %x, res = %f, res_fpu = %f\n", a.fval, b.fval, a.val, b.val, res.val, res_fpu.val, res.fval, res_fpu.fval);
+			printf("float add a = %f, b = %f, ua = %x, ub = %x, res = %x, res_fpu = %x, res = %f, res_fpu = %f\n", a.fval, b.fval, a.val, b.val, res.val, res_fpu.val, res.fval, res_fpu.fval);
 			fflush(stdout);
 			assert(res_fpu.val == res.val);
 		}
@@ -183,10 +183,10 @@ void init_fpu_test()
 	n_zero.fraction = 0;
 	p_inf.sign = 0;
 	p_inf.exponent = 255;
-	p_zero.fraction = 0;
+	p_inf.fraction = 0;
 	n_inf.sign = 1;
 	n_inf.exponent = 255;
-	n_zero.fraction = 0;
+	n_inf.fraction = 0;
 	p_nan.sign = 0;
 	p_nan.exponent = 255;
 	p_nan.fraction = 0x400000;

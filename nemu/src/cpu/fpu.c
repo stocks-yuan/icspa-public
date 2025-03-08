@@ -110,8 +110,19 @@ inline uint32_t internal_normalize(uint32_t sign, int32_t exp, uint64_t sig_grs)
 		sig_grs >>= 3;
 		if (grs > 4 || (grs == 4 && (sig_grs & 1))) {
 			sig_grs += 1; 
+			//规格化浮点数
 			if (sig_grs >= (1 << 24)) {
 				sig_grs >>= 1;
+				exp++;
+				if (exp >= 0xff) {
+					overflow = true;
+					exp = 0xff;
+					sig_grs = 0;
+				}
+			}
+			//非规格化浮点数
+			else if(exp == 0 && sig_grs >> 23 == 1) 
+			{	
 				exp++;
 			}
 		}		

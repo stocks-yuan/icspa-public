@@ -2,17 +2,19 @@
 /*
 Put the implementations of `push' instructions here.
 */
+/* x86在32位模式下，堆栈操作（如push/pop）默认以双字（32位）​为单位。
+即使压入的是较小数据（如8位或16位），也需要将其符号扩展为32位以保证堆栈对齐。*/
 static void instr_execute_1op() 
 {
     OPERAND temp;
-    temp.data_size = opr_src.data_size;
+    temp.data_size = data_size;
     temp.sreg = SREG_DS;
     temp.type = OPR_MEM;
     operand_read(&opr_src);
-    cpu.esp -= opr_src.data_size / 8;
+	cpu.esp -= data_size / 8;
     temp.addr = cpu.esp;
-    temp.val = sign_ext(opr_src.val, opr_src.data_size);
-    operand_write(&temp);
+	temp.val = sign_ext(opr_src.val, opr_src.data_size);
+	operand_write(&temp);
 }
 
 make_instr_impl_1op(push, r, v)

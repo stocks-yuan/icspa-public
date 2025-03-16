@@ -8,7 +8,8 @@
 #define CACHE_BLOCK_SIZE 64
 #define CACHE_SET_NUM 128
 #define CACHE_LINE_NUM 1024
-#define CACHE_SET_LINE_NUM (CACHE_LINE_NUM/CACHE_SET_NUM)
+//#define CACHE_SET_LINE_NUM (CACHE_LINE_NUM/CACHE_SET_NUM)
+#define CACHE_SET_LINE_NUM 8
 
 struct CacheLine {
     bool vaild_bit;

@@ -8,8 +8,8 @@ void init_cache()
 	// implement me in PA 3-1
 	for (int i = 0; i < CACHE_LINE_NUM; i++) {
 		cache[i].vaild_bit = false;
-#cache[i].tag = 0;
-#memset(cache[i].data, 0, CACHE_BLOCK_SIZE);
+//cache[i].tag = 0;
+//memset(cache[i].data, 0, CACHE_BLOCK_SIZE);
 	}
 }
 

@@ -48,7 +48,7 @@ void cache_write(paddr_t paddr, size_t len, uint32_t data)
 		else
 		{ 
 			memcpy(cache[line_num].data + offset, &data, CACHE_BLOCK_SIZE - offset);
-			memcpy(cache[line_num+1].data, (uint8_t*)(&data) + (CACHE_BLOCK_SIZE - offset), len - (CACHE_BLOCK_SIZE - offset));
+			cache_write(paddr + CACHE_BLOCK_SIZE - offset, len - (CACHE_BLOCK_SIZE - offset), data >> (8 * (CACHE_BLOCK_SIZE - offset)));
 		}
 	
 	}
@@ -118,5 +118,7 @@ uint32_t cache_read(paddr_t paddr, size_t len)
 	}
 	return result;
 }
+
+
 
 

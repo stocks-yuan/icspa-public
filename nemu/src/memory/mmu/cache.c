@@ -18,7 +18,7 @@ void init_cache()
 // write data to cache
 void cache_write(paddr_t paddr, size_t len, uint32_t data)
 {
-	printf("cache write\n");
+	
 	// implement me in PA 3-1
 	// 根据paddr找到标记、组号、与块内地址
 	uint32_t tag = paddr >> 13;
@@ -60,7 +60,7 @@ void cache_write(paddr_t paddr, size_t len, uint32_t data)
 // read data from cache
 uint32_t cache_read(paddr_t paddr, size_t len)
 {
-	printf("cache read\n");
+	
 	// implement me in PA 3-1
 	uint32_t result = 0;
 

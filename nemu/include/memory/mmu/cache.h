@@ -2,6 +2,7 @@
 #define __CACHE_H__
 
 #include "nemu.h"
+#include <stdlib.h>
 
 #ifdef CACHE_ENABLED
 

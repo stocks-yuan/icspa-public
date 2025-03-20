@@ -1,6 +1,7 @@
 #include "memory/mmu/cache.h"
-#include <stdlib.h>
 #include "memory/memory.h"
+
+#ifdef CACHE_ENABLED
 struct CacheLine cache[CACHE_LINE_NUM];
 // init the cache
 void init_cache()
@@ -119,6 +120,6 @@ uint32_t cache_read(paddr_t paddr, size_t len)
 	return result;
 }
 
-
+#endif
 
 

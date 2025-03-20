@@ -60,7 +60,10 @@ void cache_write(paddr_t paddr, size_t len, uint32_t data)
 // read data from cache
 uint32_t cache_read(paddr_t paddr, size_t len)
 {
-	
+	static uint64_t read_hit_cnt = 0;
+	static uint64_t read_cnt = 0;	
+
+	read_cnt++;
 	// implement me in PA 3-1
 	uint32_t result = 0;
 
@@ -75,6 +78,7 @@ uint32_t cache_read(paddr_t paddr, size_t len)
 		if(cache[set_num*CACHE_SET_LINE_NUM+i].tag == tag && cache[set_num*CACHE_SET_LINE_NUM+i].vaild_bit == true)
 		{
 			hit = true;
+			read_hit_cnt++;
 			line_num = set_num*CACHE_SET_LINE_NUM + i;
 			break;
 		}
@@ -117,6 +121,7 @@ uint32_t cache_read(paddr_t paddr, size_t len)
 		temp2 = cache_read(paddr + (CACHE_BLOCK_SIZE - offset), len - (CACHE_BLOCK_SIZE - offset));
 		result = temp1 | (temp2 << 8 * (CACHE_BLOCK_SIZE - offset));
 	}
+	printf("read_hit_ratio:%f",(double)(read_hit_cnt)/read_cnt);
 	return result;
 }
 
